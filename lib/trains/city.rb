@@ -1,53 +1,55 @@
+# Contains multiple City objects that routes can be built towards. Follows Composite design pattern
 class City
-    attr_reader :city_name
+	attr_reader :name
 
-    def initialize(city_name)
-        @city_name, @destinations = city_name, {}
-    end
+	def initialize(name)
+		@name, @destinations = name, {}
+	end
 
-    def add_destination(destination)
-        @destinations[destination.city.city_name] = destination
-    end
+	def route(city_names)
+		return RouteEnd.new if city_names.nil? || city_names.empty?
+		destination = @destinations[city_names[0]]
+		return NO_ROUTE if destination.nil?
+		connecting_city_names = city_names.slice(1, city_names.length)
+		build_route_to(destination).connect_to(connecting_city_names)
+	end
 
-    def route(city)
-        return NoRoute.new if city.empty?
-        destination = @destinations[city]
-        return NO_ROUTE if destination == nil
-        cites = city.slice(1, city.length)
-        create_route(destination).link(cites)
-    end
+	def all_routes_to(end_of_route, maximum_stops=20, stops=0)
+		routes = []
+		return routes if stops == maximum_stops
+		routes.concat(build_direct_route_to(end_of_route))
+		routes.concat(build_connection_routes_to(end_of_route, maximum_stops, stops))
+	end
 
-    def get_all_routes(destination, maximum_stops = 15, stops = 0)
-        routes = []
-        return routes if stops == maximum_stops
-        routes.concat(create_route_direct destination)
-        routes.concat(create_link_routes destination, maximum_stops, stops)
-    end
+	def build_connection_routes_to(end_of_route, maximum_stops, stops)
+		connected_routes = []
+		@destinations.each_value do |dest|
+			dest.city.all_routes_to(end_of_route, maximum_stops, stops + 1).each do |connection|
+				connected_routes << build_route_to(dest).connect(connection)
+			end
+		end
+		connected_routes
+	end
 
-    def create_link_routes(destination, maximum_stops, stops)
-        routes_being_linked = []
-        @destinations.each_value do |dest|
-            dest.city.get_all_routes(dest, maximum_stops, stops + 1).each do |attached|
-                routes_being_linked << create_route(dest).link(attached)
-            end
-        end
-    end
+	def build_direct_route_to(end_of_route)
+		direct_route = route(end_of_route.name)
+		return [] if direct_route == NO_ROUTE
+		[direct_route]
+	end
 
-    def create_route_direct(destination)
-        route = route(destination.city_name)
-        return [] if route = NO_ROUTE
-        [route]
-    end
+	def build_route_to(destination)
+		Route.new(self, destination.city, destination.distance)
+	end
 
-    def create_route(destination)
-        Route.new(self, destination.city, destination.distance)
-    end
+	def add_destination(destination)
+		@destinations[destination.city.name] = destination
+	end
 
-    def city_name
-        @city_name
-    end
+	def empty?
+		@name.empty?
+	end
 
-    def empty?
-        @city_name.empty?
-    end
+	def to_s
+		@name
+	end
 end

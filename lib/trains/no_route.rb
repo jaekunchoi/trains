@@ -1,20 +1,12 @@
-# Contains default values for outputs of each method. Behaviours in this class will drive other objects to stop attaching further routes
+# Defaults to no route has been added. Uses Comparable to compare distances between two routes
 class NoRoute
 	include Comparable
 
-	def <=>(second)
-		self.name == second.name
+	def connect
 	end
 
-	def name
-		"NO SUCH ROUTE"
-	end
-
-	def attach(route)
-	end
-
-	def attachment
-		''
+	def <=>(other)
+		self.to_s == other.to_s
 	end
 
 	def stops
@@ -25,7 +17,21 @@ class NoRoute
 		''
 	end
 
+	def destination_to_str
+		''
+	end
+
+	def connection_to_str
+		''
+	end
+
+	def to_s
+		'NO SUCH ROUTE'
+	end
+
 	def distance
 		0
 	end
 end
+
+NO_ROUTE = NoRoute.new

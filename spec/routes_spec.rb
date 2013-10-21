@@ -1,112 +1,106 @@
 describe Routes do
 
-  context 'can be found by origin, destination and max stops' do
-    it 'with no connections' do
-      routes = Routes.new 'ab1 bc2'
-      routes.find_by_max_stops('a', 'b').length.should eq(1)
-    end
+context 'search parameters origin destination and maximum stops' do
+	it 'no connections' do
+		routes = Routes.new('AB1 BC2')
+		expect(routes.maximum_stops('A', 'B').length).to eq(1)
+	end
 
-  #   it 'with connections and same origin and destination and a max of 6 stops' do
-  #     routes = Routes.new 'ab1 bc2 ca3'
-  #     found = routes.find_by_max_stops('a', 'a', 6).length.should eq(2)
-  #   end
+	it 'same origin and destination and a maximum inputs' do
+		routes = Routes.new('AB1 BC2 CA3')
+		expect(routes.maximum_stops('A', 'A', 6).length).to eq(2)
+	end
 
-  #   it 'with connections and different origin and destination' do
-  #     routes = Routes.new 'ab1 bc2 cd3'
-  #     routes.find_by_max_stops('a', 'd').length.should eq(1)
-  #   end
+	let(:routes){ Routes.new('AB1 BC2 CD3') }
+		it 'different origin and destination' do
+		expect(routes.maximum_stops('A', 'D').length).to eq(1)
+	end
 
-  #   it 'should find NO SUCH ROUTE with invalid origin' do
-  #     routes = Routes.new 'ab1 bc2 cd3'
-  #     routes.find_by_max_stops(nil, 'd')[0].to_s.should eq('NO SUCH ROUTE')
-  #   end
+	it 'invalid origin' do
+		expect(routes.maximum_stops(nil, 'D')[0].to_s).to eq('NO SUCH ROUTE')
+	end
 
-  #   it 'should find NO SUCH ROUTE with invalid destination' do
-  #     routes = Routes.new 'ab1 bc2 cd3'
-  #     routes.find_by_max_stops('a', nil)[0].to_s.should eq('NO SUCH ROUTE')
-  #   end
+	it 'invalid destination' do
+		expect(routes.maximum_stops('A', nil)[0].to_s).to eq('NO SUCH ROUTE')
+	end
 
-  # end
+end
 
-  # context 'can be found by origin, destination and exact stops' do
-  #   it 'with no connections' do
-  #     routes = Routes.new 'ab1 bc2'
-  #     routes.find_by_number_of_stops('a', 'b').length.should eq(1)
-  #   end
+context 'origin, destination and exact stops' do
+	it 'invalid destination' do
+		expect(routes.number_of_stops('A', nil)[0].to_s).to eq('NO SUCH ROUTE')
+	end
 
-  #   it 'with connections and same origin and destination and exactly 6 stops' do
-  #     routes = Routes.new 'ab1 bc2 ca3'
-  #     found = routes.find_by_number_of_stops('a', 'a', 6).length.should eq(1)
-  #   end
+	it 'no connections' do
+		routes = Routes.new('AB1 BC2')
+		expect(routes.number_of_stops('A', 'B').length).to eq(1)
+	end
 
-  #   it 'should find NO SUCH ROUTE with invalid destination' do
-  #     routes = Routes.new 'ab1 bc2 cd3'
-  #     routes.find_by_number_of_stops('a', nil)[0].to_s.should eq('NO SUCH ROUTE')
-  #   end
+	let(:routes){ routes = Routes.new('AB1 BC2 CA3') }
+	it 'same origin and destination and exactly 6 stops' do
+		expect(routes.number_of_stops('A', 'A', 6).length).to eq(1)
+	end
+end
 
-  # end
+context 'can be found by the shortest of a route for origin and destination' do
+	it 'multiple possible routes' do
+	 routes = Routes.new('AB1 BC4 BD1 DC1')
+	 expect(routes.shortest_route('A', 'C').to_s).to eq('ABDC3')
+	end
 
-  # context 'can be found by the shortest of a route for origin and destination' do
-  #   it 'with multiple possible routes' do
-  #     routes = Routes.new 'ab1 bc4 bd1 dc1'
-  #     found = routes.find_by_shortest_route('a', 'c').to_s.should eq('abdc3')
-  #   end
+	it 'invalid origin' do
+		routes = Routes.new('AB1 BC2 CD3')
+		expect(routes.number_of_stops(nil, nil)[0].to_s).to eq('NO SUCH ROUTE')
+	end
+end
 
-  #   it 'should find NO SUCH ROUTE with invalid origin' do
-  #     routes = Routes.new 'ab1 bc2 cd3'
-  #     routes.find_by_number_of_stops(nil, nil)[0].to_s.should eq('NO SUCH ROUTE')
-  #   end
-  # end
+context 'route exists' do
+	it 'route with no connections' do
+		routes = Routes.new('AB5')
+		expect(routes.exact_stops('A','B').to_s).to eq('AB5')
+	end
 
-  # context 'can be found by a max distance of a route for origin and destination' do
-  #   it 'with multiple possible routes' do
-  #     routes = Routes.new 'ab1 bc4 bd1 dc1'
-  #     found = routes.find_by_distance_less_than('a', 'c', 6).length.should eq(2)
-  #   end
+	it 'route with two connections' do
+		routes = Routes.new('AB5 BC4')
+		expect(routes.exact_stops('A','B','C').to_s).to eq('ABC9')
+	end
 
-  #   it 'should find NO SUCH ROUTE with invalid origin' do
-  #     routes = Routes.new 'ab1 bc2 cd3'
-  #     routes.find_by_distance_less_than(nil, nil, 3)[0].to_s.should eq('NO SUCH ROUTE')
-  #   end
-  # end
+	it '7 connections' do
+		routes = Routes.new('AB5 BC4 CE3 ED7 DA2 AC4 CB6')
+		expect(routes.exact_stops('A','B','C','E','D','A','C','B').to_s).to eq('ABCEDACB31')
+	end
+end
 
-  # context 'when desired route does not exists' do
-  #   it 'should find NO SUCH ROUTE with single connection' do
-  #     routes = Routes.new ''
-  #     routes.find_by_exact_stops('a', 'b').to_s.should eq('NO SUCH ROUTE')
-  #   end
+context 'search each route maximum distance between origin and destination' do
+	it 'possible routes' do
+		routes = Routes.new('AB1 BC4 BD1 DC1')
+		expect(routes.distance_less_than('A', 'C', 6).length).to eq(2)
+	end
 
-  #   it 'should find NO SUCH ROUTE with two connections' do
-  #     routes = Routes.new 'ab5 bc4'
-  #     routes.find_by_exact_stops('a', 'b', 'd').to_s.should eq('NO SUCH ROUTE')
-  #   end
+	it 'invalid origin' do
+		routes = Routes.new('AB1 BC2 CD3')
+		expect(routes.distance_less_than(nil, nil, 3)[0].to_s).to eq('NO SUCH ROUTE')
+	end
+end
 
-  #   it 'should find NO SUCH ROUTE with no cities requested' do
-  #     routes = Routes.new 'ab5 bc4'
-  #     routes.find_by_exact_stops().to_s.should eq('NO SUCH ROUTE')
-  #   end
+context 'invalid route' do
+	it 'single connection' do
+		routes = Routes.new('')
+		expect(routes.exact_stops('A', 'B').to_s).to eq('NO SUCH ROUTE')
+	end
 
-  #   it 'should find NO SUCH ROUTE with no cities requested' do
-  #     routes = Routes.new 'ab5 bc4'
-  #     routes.find_by_exact_stops('a').to_s.should eq('NO SUCH ROUTE')
-  #   end
-  # end
+	let(:routes){ routes = Routes.new('AB5 BC4') }
+	it 'two connections' do
+		expect(routes.exact_stops('A', 'B', 'D').to_s).to eq('NO SUCH ROUTE')
+	end
 
-  # context 'when desired route exists' do
-  #   it 'find a route with no connections' do
-  #     routes = Routes.new 'ab5'
-  #     routes.find_by_exact_stops('a','b').to_s.should eq('ab5')
-  #   end
+	it 'no cities requested' do
+		expect(routes.exact_stops().to_s).to eq('NO SUCH ROUTE')
+	end
 
-  #   it 'find a route with two connections' do
-  #     routes = Routes.new 'ab5 bc4'
-  #     routes.find_by_exact_stops('a','b','c').to_s.should eq('abc9')
-  #   end
-
-  #   it 'find a route with 5 connections' do
-  #     routes = Routes.new 'ab5 bc4 ce3 ed7 da2'
-  #     routes.find_by_exact_stops('a','b','c','e','d','a').to_s.should eq('abceda21')
-  #   end
-  end
+	it 'no cities requested' do
+		expect(routes.exact_stops('A').to_s).to eq('NO SUCH ROUTE')
+	end
+end
 
 end

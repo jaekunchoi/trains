@@ -1,42 +1,43 @@
+# For connecting routes between cities
 class Route
 	attr_reader :destination
 
 	def initialize(origin = nil, destination = nil, distance = 0)
-		@origin, @destination, @distance, @attachment = origin, destination, distance, NoRoute.new
+		@origin, @destination, @distance, @connection = origin, destination, distance, RouteEnd.new
 	end
 
-	def link(route)
-		@attachment = route
-		self
+	def stops
+		1 + @connection.stops
 	end
 
-	def link_to(city)
-		attachment = @destination.route(city)
-		return attachment if attachment == NO_ROUTE
-		link(attachment)
-	end
-
-	def edge_name
-		attachment + distance.to_s
-	end
-
-	def destination
-		if @attachment.destination.empty?
+	def destination_to_str
+		if @connection.destination.empty?
 			@destination.to_s
 		else
 			''
 		end
 	end
 
-	def attachment
-		@origin.to_s + destination + @attachment.attachment
+	def connection_to_str
+		@origin.to_s + destination_to_str + @connection.connection_to_str
 	end
 
 	def distance
-		@distance + @attachment.distance
+		@distance + @connection.distance
 	end
 
-	def stops
-		@attachment.stops + 1
+	def to_s
+		connection_to_str + distance.to_s
+	end
+
+	def connect(route)
+		@connection = route
+		self
+	end
+
+	def connect_to(city_names)
+		connection = @destination.route(city_names)
+		return connection if connection == NO_ROUTE
+		connect(connection)
 	end
 end

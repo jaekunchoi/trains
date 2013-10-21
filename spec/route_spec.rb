@@ -8,7 +8,7 @@ describe Route do
 
 	context "no attachments" do
 		it "should return its edge name" do
-			expect(route.edge_name).to eq('AB5')
+			expect(route.to_s).to eq('AB5')
 		end
 
 		it "should return the distance" do
@@ -25,11 +25,11 @@ describe Route do
 		let(:route_two) { Route.new('B', 'C', 4) }
 
 		before(:each) do
-			route_one.link(route_two)
+			route_one.connect(route_two)
 		end
 
 		it "returns its edge name" do
-			expect(route_one.edge_name).to eq('ABC9')
+			expect(route_one.to_s).to eq('ABC9')
 		end
 
 		it "should return two stops" do

@@ -8,8 +8,8 @@ run below commands in console with ruby and rspec installed
 testing:
 - rspec spec/
 
-running:
-- ruby start.rb
+running an example:
+- ruby bin/train.rb
 
 
 PROBLEM DESCRIPTION
@@ -49,25 +49,33 @@ Output #10: 7
 
 
 ASSUMPTIONS
-It is assumed that the program will run on console only without any database interactions.
+It is assumed that the program will run on console only without any database interactions which means no persistence.
+
+Inputs 'edges' will be sliced and processed each as city objects (origin and destination with origin being parent of destination).
+
+To ensure there's no duplicates, origin will be checked against stored array variable. Destination object will be added to origin object if already exists.
 
 Distance units are based on integers and stops will increment by 1 for every additional destination for a given route.
 
-The search filters 
+Route connection will stay as 'No Route' until there is a connection to indicate end of the route based on given data. No Route object is to be instantiated and stored as variable when Route object is instantiated initially by City object.
 
-A given route will never appear more than once and for a given route, starting and ending town will not be the same town.
+A given route will never appear more than once, starting and ending town will not be the same town for each route.
 
+Routes object that contains array property of city objects will contain 'search and filtering' methods for outputting desired results.
 
 
 DESIGN
+The application follows S.O.L.I.D object oriented and DRY principles.
+
 A route will consist of an 'edge' with origin, destination and distance. Each 'edge' will be seperated by a space.
 
-Input string consisting multiple 'edges' will be processed in a block within a method belonging to Routes object and sliced. Origin and destination values will instantiate a 'City' object each and stored in respective variables. Origin will then store destination City object as a property along with distance data.
+Input string consisting multiple 'edges' will be processed in a block within a method belonging to Routes object and sliced. Origin and destination values will instantiate a 'City' object each and stored in respective variables. Origin will then store destination City object as a property along with distance data. (Composite design pattern)
 
 This process will then iterate through for each 'edge' until they're finished.
 
 Multiple city objects and its destination property are used as a validator when creating routes between cities.
 
-City object should be able to create routes to using Route object and its methods. If no destination is found, it should return 'NO SUCH ROUTE'.
+City object should be able to create routes to using Route object and its methods. If no destination is found, it should return NoRoute object.
 
-It is viable to use Routes object to define methods for filtering operations to generate desired outputs.
+Routes object is used for searching and filtering using City, Destination and Route objects (Command pattern)
+
